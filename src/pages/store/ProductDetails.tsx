@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useOutletContext, useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag, Truck, ShieldCheck, Star, Send, Loader2, Share2, Heart } from 'lucide-react';
+import { useOutletContext, useParams, Link } from 'react-router-dom';
+import { ShoppingBag, Truck, ShieldCheck, Star, Loader2, Share2, Heart } from 'lucide-react';
 import { supabase, type Store, type Product, type Review } from '../../lib/supabase';
 import { formatCurrency, cn } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
@@ -12,7 +12,6 @@ import { ProductCard } from '../../components/store/ProductCard';
 export default function ProductDetails() {
   const { productId } = useParams<{ productId: string }>();
   const { store } = useOutletContext<{ store: Store }>();
-  const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

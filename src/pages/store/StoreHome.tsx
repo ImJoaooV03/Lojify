@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Search, ShoppingBag, Filter, ArrowRight } from 'lucide-react';
+import { Search, Filter, ArrowRight } from 'lucide-react';
 import { supabase, type Store, type Product } from '../../lib/supabase';
 import { cn } from '../../lib/utils';
 import { Input } from '../../components/ui/Input';

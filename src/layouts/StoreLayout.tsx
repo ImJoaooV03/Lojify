@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useParams, Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, X, Plus, Minus, Trash2, Store, Phone, Search, Menu, Instagram, Facebook, Twitter, MapPin, Mail } from 'lucide-react';
+import { ShoppingBag, X, Plus, Minus, Store, Phone, Search, Menu, Instagram, Facebook, Twitter, MapPin, Mail } from 'lucide-react';
 import { supabase, type Store as StoreType } from '../lib/supabase';
 import { Button } from '../components/ui/Button';
 import { useCart } from '../contexts/CartContext';

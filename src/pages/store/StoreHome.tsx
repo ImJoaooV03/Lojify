@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useOutletContext, Link } from 'react-router-dom';
-import { ShoppingBag, Search } from 'lucide-react';
+import { useOutletContext } from 'react-router-dom';
+import { Search, ShoppingBag, Filter, ArrowRight } from 'lucide-react';
 import { supabase, type Store, type Product } from '../../lib/supabase';
-import { formatCurrency, cn } from '../../lib/utils';
-import { Button } from '../../components/ui/Button';
+import { cn } from '../../lib/utils';
 import { Input } from '../../components/ui/Input';
 import { useCart } from '../../contexts/CartContext';
+import { ProductCard } from '../../components/store/ProductCard';
+import { Button } from '../../components/ui/Button';
 
 interface Category {
   id: string;
@@ -28,7 +29,6 @@ export default function StoreHome() {
     async function fetchData() {
       if (!store) return;
       try {
-        // OTIMIZAÇÃO: Promise.all para buscar produtos e categorias ao mesmo tempo
         const [productsRes, categoriesRes] = await Promise.all([
           supabase
             .from('products')
@@ -71,166 +71,155 @@ export default function StoreHome() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-pulse">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="bg-gray-200 rounded-xl h-64"></div>
-        ))}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="h-96 bg-gray-100 rounded-3xl animate-pulse mb-12"></div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="bg-gray-100 rounded-2xl h-80 animate-pulse"></div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Hero / Banner Area */}
-      {store.banner_url ? (
-        <div className="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden shadow-md mb-8 relative group">
-          <img 
-            src={store.banner_url} 
-            alt={store.name} 
-            className="w-full h-full object-cover"
-            loading="eager"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
-            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 shadow-sm">{store.name}</h1>
-            <p className="text-white/90 text-lg max-w-2xl shadow-sm">
-              {store.description || 'Bem-vindo à nossa loja oficial.'}
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm px-4">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-4">{store.name}</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            {store.description || 'Bem-vindo à nossa loja oficial. Confira nossos melhores produtos abaixo.'}
-          </p>
-        </div>
-      )}
-
-      {/* Search & Filter Section */}
-      <div className="sticky top-20 z-20 bg-gray-50/95 backdrop-blur-sm py-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-        <div className="flex flex-col gap-4 max-w-4xl mx-auto">
-          {/* Search Bar */}
-          <div className="relative w-full shadow-sm rounded-full">
-            <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            <Input 
-              placeholder="O que você está procurando?" 
-              className="pl-10 h-12 rounded-full border-gray-200 focus:ring-indigo-500 bg-white"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+    <div className="space-y-12 animate-in fade-in duration-700 pb-20">
+      
+      {/* Hero Section Imersiva */}
+      <div className="relative w-full">
+        {store.banner_url ? (
+          <div className="relative w-full h-[500px] lg:h-[600px] overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
+            <img 
+              src={store.banner_url} 
+              alt={store.name} 
+              className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-[20s]"
+              loading="eager"
             />
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
+              <span className="text-white/80 uppercase tracking-[0.2em] text-sm font-bold mb-4 animate-in slide-in-from-bottom-4 duration-700 delay-100">
+                Bem-vindo à {store.name}
+              </span>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tight shadow-sm max-w-4xl leading-tight animate-in slide-in-from-bottom-4 duration-700 delay-200">
+                {store.description ? store.description.split('.')[0] : 'Qualidade e Estilo para Você'}
+              </h1>
+              <p className="text-white/90 text-lg md:text-xl max-w-2xl mb-8 font-light animate-in slide-in-from-bottom-4 duration-700 delay-300">
+                Confira nossa nova coleção e aproveite as melhores ofertas.
+              </p>
+              <Button 
+                size="lg" 
+                className="h-14 px-8 rounded-full text-lg font-bold shadow-2xl hover:scale-105 transition-transform animate-in zoom-in duration-500 delay-500"
+                style={{ backgroundColor: store.primary_color || undefined }}
+                onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Ver Produtos <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="relative w-full h-[400px] bg-gray-900 overflow-hidden flex items-center justify-center">
+             {/* Pattern Background */}
+             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
+             <div className="relative z-10 text-center px-4">
+                <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">
+                  {store.name}
+                </h1>
+                <p className="text-gray-300 text-xl max-w-2xl mx-auto">
+                  {store.description || 'Os melhores produtos selecionados especialmente para você.'}
+                </p>
+             </div>
+          </div>
+        )}
+      </div>
+
+      <div id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Filter Bar Sticky */}
+        <div className="sticky top-20 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 mb-8">
+          <div className="bg-white/80 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+            {/* Search */}
+            <div className="relative w-full md:max-w-xs group">
+              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <Input 
+                placeholder="Buscar produtos..." 
+                className="pl-10 h-11 rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {/* Categories */}
+            {categories.length > 0 && (
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 w-full md:w-auto scrollbar-hide no-scrollbar mask-linear-fade">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className={cn(
+                    "whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-bold transition-all",
+                    selectedCategory === null
+                      ? "bg-gray-900 text-white shadow-md transform scale-105"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  )}
+                >
+                  Todos
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.name)}
+                    className={cn(
+                      "whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-bold transition-all",
+                      selectedCategory === cat.name
+                        ? "text-white shadow-md transform scale-105"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    )}
+                    style={selectedCategory === cat.name ? { backgroundColor: store.primary_color || '#4f46e5' } : {}}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Product Grid */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {selectedCategory ? selectedCategory : 'Destaques'}
+              <span className="text-sm font-normal text-gray-500 ml-3">
+                {filteredProducts.length} produtos
+              </span>
+            </h2>
           </div>
 
-          {/* Categories Pills */}
-          {categories.length > 0 && (
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={cn(
-                  "whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all border",
-                  selectedCategory === null
-                    ? "bg-gray-900 text-white border-gray-900"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                )}
-              >
-                Todos
-              </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.name)}
-                  className={cn(
-                    "whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all border",
-                    selectedCategory === cat.name
-                      ? "text-white border-transparent"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                  )}
-                  style={selectedCategory === cat.name ? { backgroundColor: store.primary_color || '#4f46e5' } : {}}
-                >
-                  {cat.name}
-                </button>
+          {filteredProducts.length === 0 ? (
+            <div className="text-center py-24 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+              <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-white shadow-sm mb-6">
+                <Filter className="h-8 w-8 text-gray-300" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum produto encontrado</h3>
+              <p className="text-gray-500 max-w-sm mx-auto mb-6">
+                Não encontramos nada com esses filtros. Tente buscar por outro termo.
+              </p>
+              <Button variant="outline" onClick={() => { setSearchTerm(''); setSelectedCategory(null); }}>
+                Limpar Filtros
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+              {filteredProducts.map((product) => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  storeSlug={store.slug}
+                  primaryColor={store.primary_color || undefined}
+                  onAddToCart={addToCart}
+                />
               ))}
             </div>
           )}
         </div>
       </div>
-
-      {/* Product Grid */}
-      {filteredProducts.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-gray-100 mb-4">
-            <ShoppingBag className="h-8 w-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900">Nenhum produto encontrado</h3>
-          <p className="text-gray-500 mt-1">
-            {selectedCategory 
-              ? `Não há produtos na categoria "${selectedCategory}".`
-              : "Tente buscar por outro termo ou volte mais tarde."}
-          </p>
-          {selectedCategory && (
-            <Button variant="outline" className="mt-4" onClick={() => setSelectedCategory(null)}>
-              Limpar Filtros
-            </Button>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pt-2">
-          {filteredProducts.map((product) => (
-            <div 
-              key={product.id} 
-              className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col"
-            >
-              <Link to={`/s/${store.slug}/p/${product.id}`} className="aspect-square bg-gray-100 relative overflow-hidden">
-                {product.image_url ? (
-                  <img 
-                    src={product.image_url} 
-                    alt={product.name} 
-                    className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center text-gray-300">
-                    <ShoppingBag className="h-12 w-12" />
-                  </div>
-                )}
-                {product.stock <= 0 && (
-                  <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-                    <span className="bg-gray-900 text-white px-3 py-1 text-sm font-bold rounded-full">
-                      Esgotado
-                    </span>
-                  </div>
-                )}
-              </Link>
-              
-              <div className="p-4 flex flex-col flex-1">
-                <div className="mb-2">
-                  <p className="text-xs text-gray-500 mb-1">{product.category}</p>
-                  <Link to={`/s/${store.slug}/p/${product.id}`}>
-                    <h3 className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-2">
-                      {product.name}
-                    </h3>
-                  </Link>
-                </div>
-                
-                <div className="mt-auto flex items-center justify-between gap-4">
-                  <span className="text-lg font-bold text-gray-900">
-                    {formatCurrency(product.price)}
-                  </span>
-                  <Button 
-                    size="sm" 
-                    className="rounded-full"
-                    onClick={() => addToCart(product)}
-                    disabled={product.stock <= 0}
-                    style={{ backgroundColor: store.primary_color || undefined }}
-                  >
-                    <ShoppingBag className="h-4 w-4 mr-1" />
-                    Comprar
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Loader2, Package, Truck, CheckCircle, Clock, MapPin, Phone, Mail, FileText, MessageCircle } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Modal } from '../../components/ui/Modal';
 import { formatCurrency, formatPhoneForWhatsapp } from '../../lib/utils';
 import { supabase, type Order, type OrderItem } from '../../lib/supabase';

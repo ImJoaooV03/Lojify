@@ -66,16 +66,15 @@ export default function OrderTracking() {
         storeName={store.name}
       />
 
-      <Button 
-        variant="ghost" 
-        className="mb-6 pl-0 hover:bg-transparent hover:text-indigo-600"
-        asChild
-      >
-        <Link to={`/s/${store.slug}`}>
+      <Link to={`/s/${store.slug}`}>
+        <Button 
+          variant="ghost" 
+          className="mb-6 pl-0 hover:bg-transparent hover:text-indigo-600"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar para a loja
-        </Link>
-      </Button>
+        </Button>
+      </Link>
 
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Rastrear Pedido</h1>

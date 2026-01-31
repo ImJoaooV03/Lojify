@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Search, MoreHorizontal, Ban, ExternalLink, ShieldOff, CheckCircle, Loader2 } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { supabase } from '../../lib/supabase';
 
 export default function SuperAdminStores() {

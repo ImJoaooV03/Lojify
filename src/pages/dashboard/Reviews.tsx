@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Star, Trash2, Loader2, MessageSquare } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
-import { Card, CardContent, CardHeader } from '../../components/ui/Card';
+import { Card, CardContent } from '../../components/ui/Card';
 import { supabase, type Review } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';

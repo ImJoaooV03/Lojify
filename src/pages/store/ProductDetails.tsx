@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag, Truck, ShieldCheck, Star, User, Send, Loader2 } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Truck, ShieldCheck, Star, Send, Loader2 } from 'lucide-react';
 import { supabase, type Store, type Product, type Review } from '../../lib/supabase';
 import { formatCurrency, cn } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';

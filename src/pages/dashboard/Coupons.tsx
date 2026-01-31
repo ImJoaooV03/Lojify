@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Tag, Trash2, Loader2, AlertCircle, Power } from 'lucide-react';
+import { Plus, Search, Tag, Trash2, Loader2, Power } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Modal } from '../../components/ui/Modal';
 import { supabase, type Coupon } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';

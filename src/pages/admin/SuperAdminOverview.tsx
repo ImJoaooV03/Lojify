@@ -11,7 +11,7 @@ import {
   Area
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { DollarSign, Store, Users, TrendingUp, Activity, Loader2 } from 'lucide-react';
+import { DollarSign, Store, Users, Activity, Loader2 } from 'lucide-react';
 import { formatCurrency } from '../../lib/utils';
 import { supabase } from '../../lib/supabase';
 

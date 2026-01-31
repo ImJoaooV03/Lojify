@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Save, AlertTriangle, Power } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Input } from '../../components/ui/Input';
 
 export default function SuperAdminSettings() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);

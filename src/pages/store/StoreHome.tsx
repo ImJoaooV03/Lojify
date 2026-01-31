@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
-import { ShoppingBag, Search, X } from 'lucide-react';
+import { ShoppingBag, Search } from 'lucide-react';
 import { supabase, type Store, type Product } from '../../lib/supabase';
 import { formatCurrency, cn } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Search, Mail, Phone, MapPin, ShoppingBag, Loader2 } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
+import { Search, Mail, Phone, MapPin, Loader2 } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { formatCurrency } from '../../lib/utils';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';

@@ -9,13 +9,27 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Tipos auxiliares para o banco de dados
 export type Profile = {
   id: string;
   email: string;
   full_name: string | null;
   created_at: string;
 };
+
+// Atualizando os tipos de Template
+export type TemplateId = 
+  | 'classic' 
+  | 'minimal' 
+  | 'modern' 
+  | 'fashion' 
+  | 'tech' 
+  | 'gourmet' 
+  | 'beauty' 
+  | 'gaming' 
+  | 'home' 
+  | 'sports' 
+  | 'kids' 
+  | 'books';
 
 export type Store = {
   id: string;
@@ -29,18 +43,16 @@ export type Store = {
   phone: string | null;
   pix_key: string | null;
   pix_instructions: string | null;
-  // Shipping Config
   shipping_cost: number;
   free_shipping_threshold: number | null;
-  // Template Config
-  template_id: 'classic' | 'minimal' | 'modern';
+  template_id: TemplateId; // Atualizado
   created_at: string;
 };
 
 export type ProductOption = {
   id: string;
-  name: string; // ex: "Tamanho"
-  values: string[]; // ex: ["P", "M", "G"]
+  name: string;
+  values: string[];
 };
 
 export type Product = {
@@ -53,7 +65,7 @@ export type Product = {
   category: string | null;
   image_url: string | null;
   active: boolean;
-  options?: ProductOption[] | null; // Nova coluna
+  options?: ProductOption[] | null;
   created_at: string;
 };
 
@@ -86,7 +98,7 @@ export type OrderItem = {
   quantity: number;
   unit_price: number;
   total_price: number;
-  selected_options?: Record<string, string> | null; // Para salvar no histórico do pedido futuramente
+  selected_options?: Record<string, string> | null;
 };
 
 export type Coupon = {

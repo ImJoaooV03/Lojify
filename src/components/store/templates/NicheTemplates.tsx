@@ -1,10 +1,9 @@
-import { useState } from 'react';
 import { Store, Product } from '../../../lib/supabase';
-import { cn, formatCurrency } from '../../../lib/utils';
-import { Search, ShoppingBag, Star, ArrowRight, Heart, Plus } from 'lucide-react';
+import { formatCurrency } from '../../../lib/utils';
+import { Search, ShoppingBag, Heart, Plus, Smartphone, Gamepad2 } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { Input } from '../../ui/Input';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface TemplateProps {
   store: Store;
@@ -14,7 +13,7 @@ interface TemplateProps {
 }
 
 // --- 1. FASHION TEMPLATE ---
-export function FashionTemplate({ store, products, categories, onAddToCart }: TemplateProps) {
+export function FashionTemplate({ store, products }: TemplateProps) {
   const navigate = useNavigate();
   return (
     <div className="bg-white font-serif min-h-screen">
@@ -70,7 +69,7 @@ export function FashionTemplate({ store, products, categories, onAddToCart }: Te
 }
 
 // --- 2. TECH TEMPLATE ---
-export function TechTemplate({ store, products, categories, onAddToCart }: TemplateProps) {
+export function TechTemplate({ store, products }: TemplateProps) {
   const navigate = useNavigate();
   return (
     <div className="bg-slate-50 font-sans min-h-screen">
@@ -117,7 +116,7 @@ export function TechTemplate({ store, products, categories, onAddToCart }: Templ
 }
 
 // --- 3. GOURMET TEMPLATE ---
-export function GourmetTemplate({ store, products, categories, onAddToCart }: TemplateProps) {
+export function GourmetTemplate({ store, products, onAddToCart }: TemplateProps) {
   return (
     <div className="bg-orange-50/30 font-sans min-h-screen">
       <div className="bg-white shadow-sm sticky top-0 z-20 px-4 py-4">
@@ -168,7 +167,7 @@ export function GourmetTemplate({ store, products, categories, onAddToCart }: Te
 }
 
 // --- 4. BEAUTY TEMPLATE ---
-export function BeautyTemplate({ store, products, categories, onAddToCart }: TemplateProps) {
+export function BeautyTemplate({ store, products }: TemplateProps) {
   const navigate = useNavigate();
   return (
     <div className="bg-[#fffafc] font-sans min-h-screen">
@@ -205,7 +204,7 @@ export function BeautyTemplate({ store, products, categories, onAddToCart }: Tem
 }
 
 // --- 5. GAMING TEMPLATE ---
-export function GamingTemplate({ store, products, categories, onAddToCart }: TemplateProps) {
+export function GamingTemplate({ store, products }: TemplateProps) {
   const navigate = useNavigate();
   return (
     <div className="bg-[#0a0a0a] text-gray-100 font-sans min-h-screen selection:bg-green-500 selection:text-black">
@@ -255,7 +254,7 @@ export function GamingTemplate({ store, products, categories, onAddToCart }: Tem
 }
 
 // --- 6. HOME TEMPLATE ---
-export function HomeTemplate({ store, products, categories, onAddToCart }: TemplateProps) {
+export function HomeTemplate({ store, products }: TemplateProps) {
   const navigate = useNavigate();
   return (
     <div className="bg-[#fcfbf9] font-sans min-h-screen">
@@ -289,8 +288,7 @@ export function HomeTemplate({ store, products, categories, onAddToCart }: Templ
 }
 
 // --- 7. SPORTS TEMPLATE ---
-export function SportsTemplate({ store, products, categories, onAddToCart }: TemplateProps) {
-  const navigate = useNavigate();
+export function SportsTemplate({ store, products, onAddToCart }: TemplateProps) {
   return (
     <div className="bg-white font-sans min-h-screen">
       <div className="bg-red-600 text-white transform -skew-y-1 origin-top-left pb-12 pt-4 px-4 mb-12">
@@ -331,8 +329,7 @@ export function SportsTemplate({ store, products, categories, onAddToCart }: Tem
 }
 
 // --- 8. KIDS TEMPLATE ---
-export function KidsTemplate({ store, products, categories, onAddToCart }: TemplateProps) {
-  const navigate = useNavigate();
+export function KidsTemplate({ store, products, onAddToCart }: TemplateProps) {
   return (
     <div className="bg-yellow-50 font-sans min-h-screen">
       <header className="bg-white py-6 px-4 border-b-4 border-purple-400 sticky top-0 z-20">
@@ -372,7 +369,7 @@ export function KidsTemplate({ store, products, categories, onAddToCart }: Templ
 }
 
 // --- 9. BOOKS TEMPLATE ---
-export function BooksTemplate({ store, products, categories, onAddToCart }: TemplateProps) {
+export function BooksTemplate({ store, products, onAddToCart }: TemplateProps) {
   const navigate = useNavigate();
   return (
     <div className="bg-[#f5f5f4] font-serif min-h-screen text-stone-800">

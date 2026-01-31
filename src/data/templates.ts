@@ -7,8 +7,7 @@ import {
   Home, 
   Trophy, 
   Baby, 
-  BookOpen,
-  Layout
+  BookOpen
 } from 'lucide-react';
 
 export const TEMPLATES = [

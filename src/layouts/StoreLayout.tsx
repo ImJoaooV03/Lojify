@@ -333,8 +333,8 @@ export default function StoreLayout() {
                   </div>
                 ) : (
                   <ul className="space-y-6">
-                    {items.map((item) => (
-                      <li key={item.product.id} className="flex gap-4 group">
+                    {items.map((item, index) => (
+                      <li key={`${item.product.id}-${index}`} className="flex gap-4 group">
                          <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
                           {item.product.image_url ? (
                             <img
@@ -360,13 +360,20 @@ export default function StoreLayout() {
                                 {formatCurrency(item.product.price * item.quantity)}
                               </p>
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">{item.product.category}</p>
+                            <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                              <p>{item.product.category}</p>
+                              {item.selectedOptions && Object.entries(item.selectedOptions).map(([key, value]) => (
+                                <p key={key} className="text-gray-600 font-medium">
+                                  {key}: {value}
+                                </p>
+                              ))}
+                            </div>
                           </div>
                           
                           <div className="flex items-center justify-between">
                             <div className="flex items-center border border-gray-200 rounded-lg h-8">
                               <button 
-                                onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.selectedOptions)}
                                 className="px-2.5 hover:bg-gray-50 h-full flex items-center text-gray-600 disabled:opacity-50"
                                 disabled={item.quantity <= 1}
                               >
@@ -376,7 +383,7 @@ export default function StoreLayout() {
                                 {item.quantity}
                               </span>
                               <button 
-                                onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedOptions)}
                                 className="px-2.5 hover:bg-gray-50 h-full flex items-center text-gray-600"
                               >
                                 <Plus className="h-3 w-3" />
@@ -384,7 +391,7 @@ export default function StoreLayout() {
                             </div>
                             <button
                               type="button"
-                              onClick={() => removeFromCart(item.product.id)}
+                              onClick={() => removeFromCart(item.product.id, item.selectedOptions)}
                               className="text-xs font-medium text-red-500 hover:text-red-700 underline decoration-red-200 hover:decoration-red-500 underline-offset-2 transition-all"
                             >
                               Remover

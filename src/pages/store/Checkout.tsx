@@ -93,7 +93,7 @@ export default function Checkout() {
         zip_code: formData.get('zip'),
         total_amount: finalTotal,
         discount_amount: discountAmount,
-        shipping_amount: shippingCost, // Save shipping cost
+        shipping_amount: shippingCost,
         coupon_code: appliedCoupon?.code || null,
         payment_method: formData.get('paymentMethod'),
         status: 'pending'
@@ -107,14 +107,15 @@ export default function Checkout() {
 
       if (orderError) throw orderError;
 
-      // 2. Criar os Itens do Pedido
+      // 2. Criar os Itens do Pedido (AGORA COM VARIANTES!)
       const orderItems = items.map(item => ({
         order_id: order.id,
         product_id: item.product.id,
         product_name: item.product.name,
         quantity: item.quantity,
         unit_price: item.product.price,
-        total_price: item.product.price * item.quantity
+        total_price: item.product.price * item.quantity,
+        selected_options: item.selectedOptions || null // Salva as opções escolhidas
       }));
 
       const { error: itemsError } = await supabase
@@ -265,13 +266,21 @@ export default function Checkout() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4 max-h-60 overflow-y-auto pr-2">
-                {items.map((item) => (
-                  <div key={item.product.id} className="flex justify-between text-sm">
+                {items.map((item, idx) => (
+                  <div key={`${item.product.id}-${idx}`} className="flex justify-between text-sm">
                     <div className="flex gap-3">
                       <div className="h-10 w-10 bg-gray-100 rounded bg-cover bg-center" style={{ backgroundImage: `url(${item.product.image_url})` }}></div>
                       <div>
                         <p className="font-medium text-gray-900 line-clamp-1">{item.product.name}</p>
-                        <p className="text-gray-500">Qtd: {item.quantity}</p>
+                        <p className="text-gray-500 text-xs">Qtd: {item.quantity}</p>
+                        {/* Exibir opções selecionadas */}
+                        {item.selectedOptions && (
+                          <div className="text-xs text-gray-500 mt-0.5">
+                            {Object.entries(item.selectedOptions).map(([key, val]) => (
+                              <span key={key} className="mr-2">{key}: {val}</span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <p className="font-medium">{formatCurrency(item.product.price * item.quantity)}</p>

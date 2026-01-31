@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { ShoppingBag, Star } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Star, ListFilter } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatCurrency } from '../../lib/utils';
 import { Button } from '../ui/Button';
@@ -13,6 +13,18 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, storeSlug, primaryColor, onAddToCart }: ProductCardProps) {
+  const navigate = useNavigate();
+  const hasVariants = product.options && Array.isArray(product.options) && product.options.length > 0;
+
+  const handleAction = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (hasVariants) {
+      navigate(`/s/${storeSlug}/p/${product.id}`);
+    } else {
+      onAddToCart(product);
+    }
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -52,14 +64,13 @@ export function ProductCard({ product, storeSlug, primaryColor, onAddToCart }: P
         <div className="absolute inset-x-4 bottom-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 hidden md:block">
           <Button 
             className="w-full shadow-lg font-semibold"
-            onClick={(e) => {
-              e.preventDefault();
-              onAddToCart(product);
-            }}
+            onClick={handleAction}
             disabled={product.stock <= 0}
             style={{ backgroundColor: primaryColor || undefined }}
           >
-            {product.stock > 0 ? 'Adicionar à Sacola' : 'Indisponível'}
+            {product.stock > 0 
+              ? (hasVariants ? 'Escolher Opções' : 'Adicionar à Sacola') 
+              : 'Indisponível'}
           </Button>
         </div>
       </Link>
@@ -74,7 +85,7 @@ export function ProductCard({ product, storeSlug, primaryColor, onAddToCart }: P
           </Link>
         </div>
         
-        {/* Placeholder for Rating (Simulated since we don't have avg rating in product table yet) */}
+        {/* Placeholder for Rating */}
         <div className="flex items-center gap-1 mt-2 mb-3">
           <div className="flex text-yellow-400">
             <Star className="h-3.5 w-3.5 fill-current" />
@@ -88,9 +99,6 @@ export function ProductCard({ product, storeSlug, primaryColor, onAddToCart }: P
         
         <div className="mt-auto flex items-end justify-between gap-4">
           <div className="flex flex-col">
-            <span className="text-xs text-gray-400 line-through">
-              {/* Fake "original price" logic just for visuals if we wanted */}
-            </span>
             <span className="text-xl font-bold text-gray-900">
               {formatCurrency(product.price)}
             </span>
@@ -100,11 +108,11 @@ export function ProductCard({ product, storeSlug, primaryColor, onAddToCart }: P
           <Button 
             size="icon" 
             className="rounded-full md:hidden shadow-sm"
-            onClick={() => onAddToCart(product)}
+            onClick={handleAction}
             disabled={product.stock <= 0}
             style={{ backgroundColor: primaryColor || undefined }}
           >
-            <ShoppingBag className="h-5 w-5" />
+            {hasVariants ? <ListFilter className="h-5 w-5" /> : <ShoppingBag className="h-5 w-5" />}
           </Button>
         </div>
       </div>

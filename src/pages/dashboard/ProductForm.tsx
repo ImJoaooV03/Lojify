@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Loader2, Save, Plus } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Plus, X, Tag } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { ImageUpload } from '../../components/ImageUpload';
-import { supabase } from '../../lib/supabase';
+import { supabase, type ProductOption } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 
@@ -31,6 +31,11 @@ export default function ProductForm() {
     stock: '',
     category: ''
   });
+
+  // Variants State
+  const [options, setOptions] = useState<ProductOption[]>([]);
+  const [newOptionName, setNewOptionName] = useState('');
+  const [newOptionValues, setNewOptionValues] = useState('');
 
   useEffect(() => {
     if (store?.id) {
@@ -80,6 +85,10 @@ export default function ProductForm() {
           category: data.category || ''
         });
         setImageUrl(data.image_url || '');
+        // Load options if they exist
+        if (data.options && Array.isArray(data.options)) {
+          setOptions(data.options);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -92,6 +101,27 @@ export default function ProductForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAddOption = () => {
+    if (!newOptionName.trim() || !newOptionValues.trim()) return;
+    
+    const values = newOptionValues.split(',').map(v => v.trim()).filter(v => v);
+    if (values.length === 0) return;
+
+    const newOption: ProductOption = {
+      id: Math.random().toString(36).substr(2, 9),
+      name: newOptionName.trim(),
+      values
+    };
+
+    setOptions([...options, newOption]);
+    setNewOptionName('');
+    setNewOptionValues('');
+  };
+
+  const removeOption = (optionId: string) => {
+    setOptions(options.filter(o => o.id !== optionId));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -109,6 +139,7 @@ export default function ProductForm() {
       category: formData.category,
       image_url: imageUrl,
       active: true,
+      options: options // Save variants
     };
 
     try {
@@ -154,7 +185,7 @@ export default function ProductForm() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6 max-w-2xl mx-auto pb-12">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard/products')}>
           <ArrowLeft className="h-4 w-4" />
@@ -169,12 +200,12 @@ export default function ProductForm() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Informações do Produto</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Informações Básicas</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Nome do Produto</label>
               <Input 
@@ -239,7 +270,6 @@ export default function ProductForm() {
                   {categories.map(cat => (
                     <option key={cat.id} value={cat.name}>{cat.name}</option>
                   ))}
-                  {/* If current category is not in list (legacy), show it */}
                   {formData.category && !categories.find(c => c.name === formData.category) && (
                     <option value={formData.category}>{formData.category} (Legado)</option>
                   )}
@@ -252,7 +282,6 @@ export default function ProductForm() {
                     onChange={handleChange} 
                     placeholder="Digite a categoria (ex: Roupas)" 
                   />
-                  <p className="text-xs text-gray-500">Dica: Crie categorias padronizadas no menu "Categorias".</p>
                 </div>
               )}
             </div>
@@ -267,20 +296,84 @@ export default function ProductForm() {
                 placeholder="Descreva seu produto..."
               />
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="pt-4 flex justify-end gap-4">
-              <Button type="button" variant="outline" onClick={() => navigate('/dashboard/products')}>
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                <Save className="mr-2 h-4 w-4" />
-                {id ? 'Atualizar Produto' : 'Salvar Produto'}
+        {/* Variants Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Tag className="h-5 w-5 text-indigo-600" />
+              Variantes e Opções
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-600 uppercase">Nome da Opção</label>
+                  <Input 
+                    value={newOptionName}
+                    onChange={(e) => setNewOptionName(e.target.value)}
+                    placeholder="Ex: Tamanho, Cor"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-600 uppercase">Valores (separados por vírgula)</label>
+                  <Input 
+                    value={newOptionValues}
+                    onChange={(e) => setNewOptionValues(e.target.value)}
+                    placeholder="Ex: P, M, G, GG"
+                  />
+                </div>
+              </div>
+              <Button type="button" onClick={handleAddOption} variant="outline" className="w-full">
+                <Plus className="mr-2 h-4 w-4" /> Adicionar Opção
               </Button>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+
+            {options.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-gray-900">Opções Configuradas:</h4>
+                {options.map((option) => (
+                  <div key={option.id} className="flex items-center justify-between bg-white p-3 rounded border border-gray-200 shadow-sm">
+                    <div>
+                      <span className="font-bold text-gray-900 mr-2">{option.name}:</span>
+                      <div className="inline-flex gap-1">
+                        {option.values.map((val, i) => (
+                          <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                            {val}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => removeOption(option.id)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end gap-4 sticky bottom-4 z-10">
+          <Button type="button" variant="outline" onClick={() => navigate('/dashboard/products')} className="bg-white">
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 shadow-lg">
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Save className="mr-2 h-4 w-4" />
+            {id ? 'Atualizar Produto' : 'Salvar Produto'}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

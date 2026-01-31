@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Loader2, Store, Palette, Phone, FileText, CreditCard, Truck } from 'lucide-react';
+import { Save, Loader2, Store, Palette, Phone, FileText, CreditCard, Truck, LayoutTemplate, Check } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -7,20 +7,46 @@ import { ImageUpload } from '../../components/ImageUpload';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import { cn } from '../../lib/utils';
+
+const TEMPLATES = [
+  {
+    id: 'classic',
+    name: 'Clássico',
+    description: 'O layout padrão, equilibrado e confiável. Ideal para qualquer nicho.',
+    preview: 'bg-gray-100'
+  },
+  {
+    id: 'minimal',
+    name: 'Minimalista',
+    description: 'Foco total no produto. Tipografia limpa, sem distrações e muito branco.',
+    preview: 'bg-white border border-gray-200'
+  },
+  {
+    id: 'modern',
+    name: 'Moderno (Fashion)',
+    description: 'Design arrojado com banner de tela dividida. Ótimo para moda e lifestyle.',
+    preview: 'bg-gray-900'
+  }
+];
 
 export default function StoreSettings() {
   const { store, refreshStore } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  
+  // States
   const [logoUrl, setLogoUrl] = useState<string>('');
   const [bannerUrl, setBannerUrl] = useState<string>('');
   const [primaryColor, setPrimaryColor] = useState('#4f46e5');
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('classic');
 
   useEffect(() => {
     if (store) {
       setLogoUrl(store.logo_url || '');
       setBannerUrl(store.banner_url || '');
       setPrimaryColor(store.primary_color || '#4f46e5');
+      setSelectedTemplate(store.template_id || 'classic');
     }
   }, [store]);
 
@@ -31,7 +57,6 @@ export default function StoreSettings() {
     setLoading(true);
     const formData = new FormData(e.currentTarget);
     
-    // Parse shipping values
     const shippingCost = formData.get('shipping_cost') ? parseFloat(formData.get('shipping_cost') as string) : 0;
     const freeShippingThreshold = formData.get('free_shipping_threshold') 
       ? parseFloat(formData.get('free_shipping_threshold') as string) 
@@ -48,6 +73,7 @@ export default function StoreSettings() {
       primary_color: primaryColor,
       logo_url: logoUrl,
       banner_url: bannerUrl,
+      template_id: selectedTemplate
     };
 
     try {
@@ -59,7 +85,7 @@ export default function StoreSettings() {
       if (error) throw error;
       
       await refreshStore();
-      toast({ title: 'Sucesso', description: 'Configurações salvas com sucesso!', type: 'success' });
+      toast({ title: 'Sucesso', description: 'Loja atualizada com sucesso!', type: 'success' });
     } catch (error) {
       console.error(error);
       toast({ title: 'Erro', description: 'Erro ao salvar configurações.', type: 'error' });
@@ -71,13 +97,54 @@ export default function StoreSettings() {
   if (!store) return null;
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-4xl">
       <div>
         <h2 className="text-3xl font-bold tracking-tight text-gray-900">Minha Loja</h2>
-        <p className="text-gray-500">Personalize a aparência e informações da sua loja.</p>
+        <p className="text-gray-500">Personalize a aparência, templates e informações.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        
+        {/* TEMPLATE SELECTOR */}
+        <Card className="border-indigo-100 bg-indigo-50/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-indigo-700">
+              <LayoutTemplate className="h-5 w-5" />
+              Escolha seu Template
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-4">
+              {TEMPLATES.map((template) => (
+                <div 
+                  key={template.id}
+                  onClick={() => setSelectedTemplate(template.id)}
+                  className={cn(
+                    "cursor-pointer rounded-xl border-2 p-4 transition-all hover:shadow-md relative",
+                    selectedTemplate === template.id 
+                      ? "border-indigo-600 bg-white ring-2 ring-indigo-100" 
+                      : "border-gray-200 bg-white hover:border-indigo-300"
+                  )}
+                >
+                  {selectedTemplate === template.id && (
+                    <div className="absolute -top-3 -right-3 h-8 w-8 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-sm z-10">
+                      <Check className="h-5 w-5" />
+                    </div>
+                  )}
+                  
+                  {/* Mock Preview */}
+                  <div className={cn("h-24 w-full rounded-lg mb-4 flex items-center justify-center", template.preview)}>
+                    <span className="text-xs font-bold opacity-50 uppercase">{template.name}</span>
+                  </div>
+                  
+                  <h3 className="font-bold text-gray-900">{template.name}</h3>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{template.description}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Identidade Visual */}
         <Card>
           <CardHeader>
@@ -94,7 +161,7 @@ export default function StoreSettings() {
                 onChange={setLogoUrl} 
               />
               <ImageUpload 
-                label="Banner Promocional (Horizontal)" 
+                label="Banner Hero (Capa da Loja)" 
                 value={bannerUrl} 
                 onChange={setBannerUrl} 
               />
@@ -220,11 +287,11 @@ export default function StoreSettings() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end">
-          <Button type="submit" size="lg" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700">
+        <div className="flex justify-end sticky bottom-4 z-10">
+          <Button type="submit" size="lg" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 shadow-xl">
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             <Save className="mr-2 h-4 w-4" />
-            Salvar Alterações
+            Salvar Tudo
           </Button>
         </div>
       </form>

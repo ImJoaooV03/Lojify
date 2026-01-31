@@ -295,7 +295,17 @@ export default function Orders() {
                       <tbody className="divide-y divide-gray-200">
                         {orderItems.map((item) => (
                           <tr key={item.id}>
-                            <td className="px-3 py-2 text-gray-900">{item.product_name}</td>
+                            <td className="px-3 py-2 text-gray-900">
+                              <div>{item.product_name}</div>
+                              {/* EXIBIR VARIANTES NO PACKING LIST */}
+                              {item.selected_options && (
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {Object.entries(item.selected_options).map(([key, val]) => (
+                                    <span key={key} className="mr-2 inline-block bg-gray-100 px-1.5 rounded">{key}: {val as string}</span>
+                                  ))}
+                                </div>
+                              )}
+                            </td>
                             <td className="px-3 py-2 text-center text-gray-600">{item.quantity}</td>
                             <td className="px-3 py-2 text-right text-gray-900">{formatCurrency(item.total_price)}</td>
                           </tr>

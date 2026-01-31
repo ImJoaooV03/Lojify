@@ -32,7 +32,15 @@ export type Store = {
   // Shipping Config
   shipping_cost: number;
   free_shipping_threshold: number | null;
+  // Template Config
+  template_id: 'classic' | 'minimal' | 'modern';
   created_at: string;
+};
+
+export type ProductOption = {
+  id: string;
+  name: string; // ex: "Tamanho"
+  values: string[]; // ex: ["P", "M", "G"]
 };
 
 export type Product = {
@@ -45,6 +53,7 @@ export type Product = {
   category: string | null;
   image_url: string | null;
   active: boolean;
+  options?: ProductOption[] | null; // Nova coluna
   created_at: string;
 };
 
@@ -62,7 +71,7 @@ export type Order = {
   status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
   total_amount: number;
   discount_amount: number;
-  shipping_amount: number; // New field
+  shipping_amount: number;
   coupon_code: string | null;
   payment_method: string;
   created_at: string;
@@ -77,6 +86,7 @@ export type OrderItem = {
   quantity: number;
   unit_price: number;
   total_price: number;
+  selected_options?: Record<string, string> | null; // Para salvar no histórico do pedido futuramente
 };
 
 export type Coupon = {

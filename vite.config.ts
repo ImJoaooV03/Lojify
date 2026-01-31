@@ -3,8 +3,12 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    host: true, // Necessário para expor a porta no ambiente containerizado
+    port: 5173,
+    strictPort: true,
+  },
   build: {
-    // Otimizações para evitar erros de memória em builds grandes
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {

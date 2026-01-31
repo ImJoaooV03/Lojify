@@ -22,10 +22,16 @@ export default function ProductDetails() {
   const [newReview, setNewReview] = useState({ name: '', rating: 5, comment: '' });
   const [submittingReview, setSubmittingReview] = useState(false);
 
+  // Variant Selection State
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+
   useEffect(() => {
     async function fetchProductData() {
       if (!productId) return;
       setLoading(true);
+      // Reset options when product changes
+      setSelectedOptions({});
+      
       try {
         // 1. Fetch main product
         const { data: productData, error: productError } = await supabase
@@ -36,6 +42,17 @@ export default function ProductDetails() {
 
         if (productError) throw productError;
         setProduct(productData);
+
+        // Pre-select first options if available (optional UX improvement)
+        /*
+        if (productData.options && Array.isArray(productData.options)) {
+           const initialOptions: Record<string, string> = {};
+           productData.options.forEach((opt: any) => {
+             if (opt.values.length > 0) initialOptions[opt.name] = opt.values[0];
+           });
+           setSelectedOptions(initialOptions);
+        }
+        */
 
         // 2. Fetch reviews and related products in parallel
         const [reviewsRes, relatedRes] = await Promise.all([
@@ -104,6 +121,27 @@ export default function ProductDetails() {
     }
   };
 
+  const handleOptionSelect = (optionName: string, value: string) => {
+    setSelectedOptions(prev => ({
+      ...prev,
+      [optionName]: value
+    }));
+  };
+
+  const isAllOptionsSelected = () => {
+    if (!product?.options || !Array.isArray(product.options) || product.options.length === 0) return true;
+    return product.options.every(opt => selectedOptions[opt.name]);
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    if (!isAllOptionsSelected()) {
+      alert('Por favor, selecione todas as opções (Tamanho, Cor, etc) antes de adicionar ao carrinho.');
+      return;
+    }
+    addToCart(product, 1, Object.keys(selectedOptions).length > 0 ? selectedOptions : undefined);
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12 animate-pulse">
@@ -158,11 +196,6 @@ export default function ProductDetails() {
                 <ShoppingBag className="h-32 w-32" />
               </div>
             )}
-            
-            {/* Zoom Hint */}
-            <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-xs font-medium text-gray-600 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
-              Passe o mouse para ampliar
-            </div>
           </div>
           {/* Decorative Blob */}
           <div className="absolute -top-10 -left-10 w-full h-full bg-indigo-50 rounded-3xl -z-0 transform -rotate-3 scale-105 opacity-50"></div>
@@ -209,18 +242,47 @@ export default function ProductDetails() {
               <span className="text-4xl font-bold text-gray-900 tracking-tight">
                 {formatCurrency(product.price)}
               </span>
-              {/* Mock Original Price */}
-              <span className="text-lg text-gray-400 line-through mb-1.5">
-                {formatCurrency(product.price * 1.2)}
-              </span>
               <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded-md mb-2">
-                20% OFF
+                Em estoque
               </span>
             </div>
             <p className="text-sm text-gray-500">
               Em até 12x de {formatCurrency(product.price / 12)} no cartão
             </p>
           </div>
+
+          {/* Variants Selection */}
+          {product.options && Array.isArray(product.options) && product.options.length > 0 && (
+            <div className="space-y-6 mb-8">
+              {product.options.map((option) => (
+                <div key={option.id}>
+                  <h3 className="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">
+                    {option.name}: <span className="text-gray-500 font-normal normal-case">{selectedOptions[option.name]}</span>
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {option.values.map((value) => {
+                      const isSelected = selectedOptions[option.name] === value;
+                      return (
+                        <button
+                          key={value}
+                          onClick={() => handleOptionSelect(option.name, value)}
+                          className={cn(
+                            "px-4 py-2 rounded-lg border text-sm font-medium transition-all min-w-[3rem]",
+                            isSelected 
+                              ? "border-transparent text-white shadow-md transform scale-105" 
+                              : "border-gray-200 text-gray-700 hover:border-gray-400 bg-white"
+                          )}
+                          style={isSelected ? { backgroundColor: primaryColor } : {}}
+                        >
+                          {value}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="prose prose-gray mb-10 text-gray-600 leading-relaxed">
             <p>{product.description || "Este produto foi cuidadosamente selecionado para oferecer a melhor qualidade e experiência."}</p>
@@ -230,19 +292,15 @@ export default function ProductDetails() {
             <Button 
               size="lg" 
               className="w-full h-16 text-lg font-bold rounded-xl shadow-xl shadow-indigo-200 hover:shadow-2xl hover:-translate-y-1 transition-all"
-              onClick={() => addToCart(product)}
+              onClick={handleAddToCart}
               disabled={product.stock <= 0}
               style={{ backgroundColor: primaryColor }}
             >
               <ShoppingBag className="mr-2 h-6 w-6" />
-              {product.stock > 0 ? 'Adicionar à Sacola' : 'Esgotado'}
+              {product.stock > 0 
+                ? (isAllOptionsSelected() ? 'Adicionar à Sacola' : 'Selecione as opções') 
+                : 'Esgotado'}
             </Button>
-            
-            {product.stock > 0 && product.stock < 10 && (
-              <p className="text-center text-sm font-medium text-orange-600 animate-pulse">
-                Corra! Apenas {product.stock} unidades em estoque.
-              </p>
-            )}
           </div>
 
           {/* Trust Badges */}
@@ -282,7 +340,7 @@ export default function ProductDetails() {
                 product={related} 
                 storeSlug={store.slug}
                 primaryColor={primaryColor}
-                onAddToCart={addToCart}
+                onAddToCart={(p) => addToCart(p, 1)} // Related products quick add doesn't support options yet
               />
             ))}
           </div>
